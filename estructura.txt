@@ -1,0 +1,7 @@
+TTS/
+├── kokoro/
+│   ├── main.py
+│   ├── core/
+│   │   └── microphone.py
+│   └── cliente.py
+└── requirements.txt

@@ -1,0 +1,8 @@
+# Ignorar el entorno virtual de Kokoro
+entorno_de_kokoro/
+
+# Ignorar la carpeta Kokoro-82M
+Kokoro-82M/
+
+# Ignorar caché de Python
+__pycache__/
