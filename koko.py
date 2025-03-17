@@ -32,7 +32,7 @@ async def play_audio():
 async def generate_audio_fragment(text, fragment_index):
     """Generar el audio de un fragmento de texto"""
     generator = pipeline(
-        text, voice='af_heart',  # Cambia la voz si lo deseas
+        text, voice='if_sara',  # Cambia la voz si lo deseas ...  af_heart es la de ingles
         speed=1, split_pattern=r'\n+'
     )
 

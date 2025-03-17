@@ -6,9 +6,11 @@ import time
 koko_url = "http://127.0.0.1:8003/generate_audio/"
 
 # Sentencia de texto larga
-sentence = """In the vast landscape of human history, there have been numerous turning points that have shaped the course of civilization, some of which are widely recognized for their profound impact, such as the Industrial Revolution, the advent of the internet, and the space race of the 20th century; however, it is the ongoing evolution of technology that continues to alter the fabric of society in ways that were once unimaginable, transforming the way individuals communicate, interact, and perceive the world around them.
-In the vast landscape of human history, there have been numerous turning points that have shaped the course of civilization, some of which are widely recognized for their profound impact, such as the Industrial Revolution, the advent of the internet, and the space race of the 20th century; however, it is the ongoing evolution of technology that continues to alter the fabric of society in ways that were once unimaginable, transforming the way individuals communicate, interact, and perceive the world around them.
-In the vast landscape of human history, there have been numerous turning points that have shaped the course of civilization, some of which are widely recognized for their profound impact, such as the Industrial Revolution, the advent of the internet, and the space race of the 20th century; however, it is the ongoing evolution of technology that continues to alter the fabric of society in ways that were once unimaginable, transforming the way individuals communicate, interact, and perceive the world around them."""
+sentence = """L'italiano è una lingua melodiosa e ricca di storia. Parlata da milioni di persone nel mondo, è famosa per la sua musicalità e il suo legame con l'arte, la cultura e la cucina. Dalle opere di Dante Alighieri ai capolavori del cinema italiano, questa lingua continua a incantare chiunque la ascolti.
+
+Viaggiare in Italia significa immergersi in un mondo di suoni armoniosi, gesti espressivi e tradizioni secolari. Ogni regione ha il suo dialetto e le sue peculiarità, rendendo l'italiano ancora più affascinante e variegato.
+
+Se vuoi scoprire la bellezza dell'italiano, non c'è modo migliore che praticarlo ogni giorno, magari con una buona tazza di caffè e una conversazione appassionante!"""
 
 # Dividir el texto solo por puntos
 sentence_split = re.split(r'[.?!;]', sentence)
