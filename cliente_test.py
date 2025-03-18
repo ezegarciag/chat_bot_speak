@@ -7,10 +7,20 @@ import soundfile as sf
 koko_url = "http://localhost:8001/generate_audio/"
 
 # Texto de prueba
-sentence = """L'italiano è una lingua melodiosa e ricca di storia. Parlata da milioni di persone nel mondo, è famosa per la sua musicalità e il suo legame con l'arte, la cultura e la cucina. Dalle opere di Dante Alighieri ai capolavori del cinema italiano, questa lingua continua a incantare chiunque la ascolti."""
+#sentence = """L'italiano è una lingua melodiosa e ricca di storia. Parlata da milioni di persone nel mondo, è famosa per la sua musicalità e il suo legame con l'arte, la cultura e la cucina. Dalle opere di Dante Alighieri ai capolavori del cinema italiano, questa lingua continua a incantare chiunque la ascolti."""
 
-def send_request_and_play(text):
-    data = {"text": text}
+sentence = """Technology has been evolving at an astonishing rate over the past few decades. Innovations in artificial intelligence, machine learning, and robotics are transforming industries and reshaping the way we live and work. The possibilities seem endless, and we are only beginning to scratch the surface of what these advancements can offer."""
+
+voz_it = "if_sara" # italiana
+
+voz_en = "af_heart"
+
+
+def send_request_and_play(text,voz):
+    data = {
+        "text": text,
+        "voz": voz
+    }
     try:
         response = requests.post(koko_url, json=data)
         response_json = response.json()
@@ -31,4 +41,4 @@ def send_request_and_play(text):
         print(f"Error al enviar la solicitud: {e}")
 
 # Procesar la oración
-send_request_and_play(sentence)
+send_request_and_play(sentence, voz_en) # cambiale la voz segun el idioma

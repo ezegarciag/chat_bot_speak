@@ -14,11 +14,12 @@ pipeline = KPipeline(lang_code='a')  # Asegúrate de que lang_code coincide con 
 
 class TextInput(BaseModel):
     text: str
+    voz: str
 
-async def generate_audio_fragment(text, fragment_index):
+async def generate_audio_fragment(text, fragment_index,voz):
     """Generar el audio de un fragmento de texto y devolver todos los subfragmentos."""
     generator = pipeline(
-        text, voice='if_sara',  # Cambia la voz si lo deseas
+        text, voice= voz,  # Cambia la voz si lo deseas
         speed=1, split_pattern=r'\n+'
     )
 
@@ -48,10 +49,11 @@ async def generate_audio_fragment(text, fragment_index):
 @app.post("/generate_audio/")
 async def generate_audio(input_data: TextInput):
     text = input_data.text
+    voz = input_data.voz
     fragments = text.split('\n')  # Dividir el texto en fragmentos
 
     # Generar los audios de forma concurrente
-    tasks = [generate_audio_fragment(fragment, i) for i, fragment in enumerate(fragments)]
+    tasks = [generate_audio_fragment(fragment, i, voz) for i, fragment in enumerate(fragments)]
     all_audio_fragments = await asyncio.gather(*tasks)
 
     # Aplanar la lista de fragmentos

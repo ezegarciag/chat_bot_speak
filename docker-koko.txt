@@ -1,0 +1,3 @@
+docker build -t koko-server -f Dockerfile.koko .
+
+docker run --gpus all -p 8001:8001 koko-server
