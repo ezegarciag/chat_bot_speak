@@ -1,75 +1,65 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Response
 from pydantic import BaseModel
 from kokoro import KPipeline
-import sounddevice as sd
 import numpy as np
 import asyncio
+import base64
+import io
+import soundfile as sf
 
 app = FastAPI()
 
 # 🇺🇸 'a' => American English, 🇬🇧 'b' => British English
 pipeline = KPipeline(lang_code='a')  # Asegúrate de que lang_code coincide con la voz
 
-# Cola para gestionar los fragmentos de audio
-audio_queue = asyncio.Queue()
-
 class TextInput(BaseModel):
     text: str
 
-async def play_audio():
-    """Reproducir el audio a 24000 Hz sin bloquear el hilo principal"""
-    while True:
-        # Esperar hasta que haya un fragmento de audio disponible en la cola
-        audio_np = await audio_queue.get()
-        
-        # Reproducir el audio
-        sd.play(audio_np, 24000)
-        sd.wait()  # Usamos wait aquí ya que no queremos que se solapen los audios
-        
-        # Indicar que se ha terminado de reproducir
-        print("Audio ha terminado de reproducirse.")
-
 async def generate_audio_fragment(text, fragment_index):
-    """Generar el audio de un fragmento de texto"""
+    """Generar el audio de un fragmento de texto y devolver todos los subfragmentos."""
     generator = pipeline(
-        text, voice='if_sara',  # Cambia la voz si lo deseas ...  af_heart es la de ingles
+        text, voice='if_sara',  # Cambia la voz si lo deseas
         speed=1, split_pattern=r'\n+'
     )
 
-    # Generar el primer fragmento de audio y devolverlo
+    audio_fragments = []  # Lista para almacenar los fragmentos generados
+
+    # Generar y almacenar todos los fragmentos de audio
     for i, (gs, ps, audio) in enumerate(generator):
         print(f"Fragmento {fragment_index} - Subfragmento {i}:")
         print("Graphemes:", gs)
         print("Phonemes:", ps)
 
-        # Convertir el tensor a numpy
+        # Convertir el tensor de audio a numpy
         audio_np = audio.detach().cpu().numpy()
 
-        # Devolver el fragmento de audio generado
-        return audio_np  # Solo devolvemos el primer fragmento generado
+        # Convertir a formato WAV en memoria
+        with io.BytesIO() as wav_buffer:
+            sf.write(wav_buffer, audio_np, 24000, format='WAV')
+            wav_bytes = wav_buffer.getvalue()
+
+        # Codificar en Base64
+        audio_base64 = base64.b64encode(wav_bytes).decode('utf-8')
+        
+        audio_fragments.append(audio_base64)
+    
+    return audio_fragments
 
 @app.post("/generate_audio/")
 async def generate_audio(input_data: TextInput):
     text = input_data.text
     fragments = text.split('\n')  # Dividir el texto en fragmentos
 
-    # Generar los audios de forma concurrente, pero respetando el orden
-    tasks = []
-    for i, fragment in enumerate(fragments):
-        # Generar el audio en segundo plano para cada fragmento
-        tasks.append(generate_audio_fragment(fragment, i))
+    # Generar los audios de forma concurrente
+    tasks = [generate_audio_fragment(fragment, i) for i, fragment in enumerate(fragments)]
+    all_audio_fragments = await asyncio.gather(*tasks)
 
-    # Esperamos a que se generen todos los audios
-    audio_fragments = await asyncio.gather(*tasks)
+    # Aplanar la lista de fragmentos
+    audio_base64_list = [audio for sublist in all_audio_fragments for audio in sublist]
+    return {"audio_fragments": audio_base64_list}
 
-    # Colocar los fragmentos en la cola para que se reproduzcan
-    for audio_np in audio_fragments:
-        await audio_queue.put(audio_np)
 
-    return {"status": "Audio generado y en espera de ser reproducido"}
+@app.get("/")
+def root():
+    return {"message": "intro"}
 
-# Inicia la reproducción de audio en segundo plano
-@app.on_event("startup")
-async def startup():
-    # Comienza la reproducción de audio en un hilo asíncrono
-    asyncio.create_task(play_audio())
